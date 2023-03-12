@@ -1,3 +1,4 @@
+package snakedemo.snakedemo;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -8,11 +9,22 @@ import javax.swing.JPanel;
 
 public class GamePanel extends JPanel implements ActionListener{
 
+
+
     @Serial
     private static final long serialVersionUID = 1L;
 
+    Random rand = new Random();
+    float r = rand.nextFloat();
+    float g = rand.nextFloat();
+    float b = rand.nextFloat();
+
+
     static final int WIDTH = 500;
     static final int HEIGHT = 500;
+
+    int tomatoX;
+    int tomatoY;
     static final int UNIT_SIZE = 20;
     static final int NUMBER_OF_UNITS = (WIDTH * HEIGHT) / (UNIT_SIZE * UNIT_SIZE);
 
@@ -41,6 +53,7 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void play() {
         addFood();
+        addTomato();
         running = true;
 
         timer = new Timer(80, this);
@@ -79,22 +92,41 @@ public class GamePanel extends JPanel implements ActionListener{
         }
     }
 
+    public void checkTomato() {
+        if (x[0] == tomatoX && y[0] == tomatoY) {
+            length--;
+            foodEaten--;
+            addTomato();
+        }
+    }
+
     public void draw(Graphics graphics) {
 
+
         if (running) {
-            graphics.setColor(new Color(210, 115, 90));
-            graphics.fillOval(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
+
+
+            graphics.setColor(new Color(93, 169, 50));
+            graphics.fillRect(foodX, foodY, UNIT_SIZE, UNIT_SIZE);
+
+            graphics.setColor(new Color(169, 50, 50));
+            graphics.fillRect(tomatoX, tomatoY, UNIT_SIZE, UNIT_SIZE);
 
             graphics.setColor(Color.white);
-            graphics.fillRect(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
+            graphics.fillOval(x[0], y[0], UNIT_SIZE, UNIT_SIZE);
 
             for (int i = 1; i < length; i++) {
-                graphics.setColor(new Color(40, 200, 150));
-                graphics.fillRect(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
+
+                float r = rand.nextFloat();
+                float g = rand.nextFloat();
+                float b = rand.nextFloat();
+
+                graphics.setColor(new Color(r, g, b));
+                graphics.fillOval(x[i], y[i], UNIT_SIZE, UNIT_SIZE);
             }
 
             graphics.setColor(Color.white);
-            graphics.setFont(new Font("Sans serif", Font.ROMAN_BASELINE, 25));
+            graphics.setFont(new Font("Sans serif", Font.PLAIN, 25));
             FontMetrics metrics = getFontMetrics(graphics.getFont());
             graphics.drawString("Score: " + foodEaten, (WIDTH - metrics.stringWidth("Score: " + foodEaten)) / 2, graphics.getFont().getSize());
 
@@ -104,8 +136,13 @@ public class GamePanel extends JPanel implements ActionListener{
     }
 
     public void addFood() {
-        foodX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
-        foodY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
+        foodX = random.nextInt(WIDTH / UNIT_SIZE)*UNIT_SIZE;
+        foodY = random.nextInt(HEIGHT / UNIT_SIZE)*UNIT_SIZE;
+    }
+    public void addTomato()
+    {
+        tomatoX = random.nextInt((int)(WIDTH / UNIT_SIZE))*UNIT_SIZE;
+        tomatoY = random.nextInt((int)(HEIGHT / UNIT_SIZE))*UNIT_SIZE;
     }
 
     public void checkHit() {
@@ -113,6 +150,7 @@ public class GamePanel extends JPanel implements ActionListener{
         for (int i = length; i > 0; i--) {
             if (x[0] == x[i] && y[0] == y[i]) {
                 running = false;
+                break;
             }
         }
 
@@ -128,12 +166,12 @@ public class GamePanel extends JPanel implements ActionListener{
 
     public void gameOver(Graphics graphics) {
         graphics.setColor(Color.red);
-        graphics.setFont(new Font("Sans serif", Font.ROMAN_BASELINE, 50));
+        graphics.setFont(new Font("Sans serif", Font.PLAIN, 50));
         FontMetrics metrics = getFontMetrics(graphics.getFont());
         graphics.drawString("Game Over", (WIDTH - metrics.stringWidth("Game Over")) / 2, HEIGHT / 2);
 
         graphics.setColor(Color.white);
-        graphics.setFont(new Font("Sans serif", Font.ROMAN_BASELINE, 25));
+        graphics.setFont(new Font("Sans serif", Font.PLAIN, 25));
         metrics = getFontMetrics(graphics.getFont());
         graphics.drawString("Score: " + foodEaten, (WIDTH - metrics.stringWidth("Score: " + foodEaten)) / 2, graphics.getFont().getSize());
 
@@ -144,6 +182,7 @@ public class GamePanel extends JPanel implements ActionListener{
         if (running) {
             move();
             checkFood();
+            checkTomato();
             checkHit();
         }
         repaint();
